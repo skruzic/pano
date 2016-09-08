@@ -7,12 +7,12 @@
 
 #include <opencv2/features2d.hpp>
 #include <opencv2/opencv_modules.hpp>
-#include "FeaturesFinder.hpp"
+#include "FeatureFinder.hpp"
 
 using namespace cv;
 
 namespace Pano {
-    class SiftFeaturesFinder : public FeaturesFinder {
+    class SiftFeaturesFinder : public FeatureFinder {
     public:
         SiftFeaturesFinder();
     private:

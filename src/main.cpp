@@ -1,7 +1,9 @@
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include <SiftFeaturesFinder.hpp>
+#include <opencv2/imgproc.hpp>
+#include "SiftFeatureFinder.hpp"
+#include "FeatureMatcher.hpp"
 #include "Util.hpp"
 
 using namespace std;
@@ -15,7 +17,11 @@ std::vector<UMat> loadImages(String path) {
     glob(path, files, false);
 
     for (int i = 0; i < files.size(); ++i) {
-        images.push_back(imread(files[i]).getUMat(ACCESS_READ));
+        Mat im = imread(files[i]);
+        Mat im_scale;
+        resize(im, im_scale, Size(), 0.22, 0.22);
+        images.push_back(im_scale.getUMat(ACCESS_READ));
+        //images.push_back(imread(files[i]).getUMat(ACCESS_READ));
     }
 
     return images;
@@ -32,11 +38,16 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < imgs.size(); ++i) {
         (*finder)(imgs[i], features[i]);
         cout << "Features in image #" << i + 1 << ": " << features[i].keypoints.size() << endl;
-        //
+        /*
         std::sort(features[i].keypoints.begin(), features[i].keypoints.end(), compareKeypoints);
         //features[i].keypoints.resize(20);
-        KeyPointsFilter::retainBest(features[i].keypoints, 20);
+        KeyPointsFilter::retainBest(features[i].keypoints, 20);*/
     }
+
+    // Matching
+    Ptr<FeatureMatcher> matcher = makePtr<FeatureMatcher>();
+    MatchesInfo minfo;
+    (*matcher)(features[0], features[1], minfo);
 
     return 0;
 

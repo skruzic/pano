@@ -8,7 +8,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/features2d.hpp>
-#include "FeaturesFinder.hpp"
+#include "FeatureFinder.hpp"
 
 using namespace cv;
 

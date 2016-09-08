@@ -17,9 +17,9 @@ namespace Pano {
         UMat descriptors;
     };
 
-    class FeaturesFinder {
+    class FeatureFinder {
     public:
-        virtual ~FeaturesFinder() {}
+        virtual ~FeatureFinder() {}
         void operator()(InputArray image, ImageFeatures &features);
         virtual void collectGarbage() {}
     protected:

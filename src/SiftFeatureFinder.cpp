@@ -3,7 +3,7 @@
 //
 
 #include <opencv2/imgproc.hpp>
-#include "SiftFeaturesFinder.hpp"
+#include "SiftFeatureFinder.hpp"
 
 using namespace cv;
 
