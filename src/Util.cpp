@@ -8,7 +8,7 @@ namespace Pano {
     void displayKeypoints(InputArray image, ImageFeatures &features) {
         Mat img_keypoints;
 
-        drawKeypoints(image, features.keypoints, img_keypoints, 1, DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        drawKeypoints(image, features.keypoints, img_keypoints, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
         namedWindow("Keypoints", WINDOW_NORMAL);
         imshow("Keypoints", img_keypoints);
