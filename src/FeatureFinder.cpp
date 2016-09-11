@@ -9,5 +9,10 @@ namespace Pano {
         find(image, features);
         features.img_size = image.size();
     }
+
+    void FeatureFinder::operator()(InputArray &image, ImageFeatures &features, const Rect &roi) {
+        find(image.getUMat()(roi), features);
+        features.img_size = image.size();
+    }
 }
 

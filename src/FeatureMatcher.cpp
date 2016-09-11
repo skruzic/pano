@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 #include <opencv2/calib3d.hpp>
 #include "FeatureMatcher.hpp"
@@ -166,7 +167,7 @@ namespace Pano {
         }
 
         // Find pair-wise motion
-        matches_info.H = findHomography(src_points, dst_points, matches_info.inliers_mask);
+        matches_info.H = findHomography(src_points, dst_points, matches_info.inliers_mask, RANSAC);
         if (matches_info.H.empty() || std::abs(determinant(matches_info.H)) < std::numeric_limits<double>::epsilon())
             return;
 
@@ -212,6 +213,7 @@ namespace Pano {
         }
 
         // Rerun motion estimation on inliers only
-        matches_info.H = findHomography(src_points, dst_points);
+        matches_info.H = findHomography(src_points, dst_points, RANSAC);
+        //matches_info.M = getPerspectiveTransform(src_points, dst_points);
     }
 } // namespace Pano

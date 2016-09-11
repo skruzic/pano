@@ -23,7 +23,8 @@ namespace Pano {
         std::vector<DMatch> matches;
         std::vector<uchar> inliers_mask;    // geometrijski konzistentni parovi
         int num_inliers;                    // broj geometrijski konzistentnih parova
-        Mat H;                              // matrica transformacije
+        Mat H;                              // homografija
+        Mat M;                              // matrica transformacije
         double confidence;                  // vjerojatnost da su slike iz iste panorame
     };
 

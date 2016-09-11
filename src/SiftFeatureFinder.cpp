@@ -13,10 +13,10 @@ using cv::xfeatures2d::SIFT;
 #endif
 
 namespace Pano {
-    SiftFeaturesFinder::SiftFeaturesFinder() {
+    SiftFeaturesFinder::SiftFeaturesFinder(int num_features) {
 #ifdef HAVE_OPENCV_XFEATURES2D
-        Ptr<SIFT> sdetector_ = SIFT::create(20);
-        Ptr<SIFT> sextractor_ = SIFT::create(20);
+        Ptr<SIFT> sdetector_ = SIFT::create(num_features, 3, 0.03);
+        Ptr<SIFT> sextractor_ = SIFT::create(num_features, 3, 0.03);
 
         if (!sdetector_ || !sextractor_)
             CV_Error(Error::StsNotImplemented, "OpenCV was build without SIFT support");

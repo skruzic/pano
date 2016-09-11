@@ -14,7 +14,7 @@ using namespace cv;
 namespace Pano {
     class SiftFeaturesFinder : public FeatureFinder {
     public:
-        SiftFeaturesFinder();
+        SiftFeaturesFinder(int num_features = 0);
     private:
         void find(InputArray image, ImageFeatures &features);
         void collectGarbage();

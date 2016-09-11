@@ -21,6 +21,7 @@ namespace Pano {
     public:
         virtual ~FeatureFinder() {}
         void operator()(InputArray image, ImageFeatures &features);
+        void operator()(InputArray image, ImageFeatures &features, const Rect &roi);
         virtual void collectGarbage() {}
     protected:
         virtual void find(InputArray image, ImageFeatures &features) = 0;
