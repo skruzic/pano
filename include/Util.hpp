@@ -15,6 +15,8 @@ using namespace cv;
 namespace Pano {
     void displayKeypoints(InputArray image, ImageFeatures &features);
 
+    void saveKeypoints(InputArray image, ImageFeatures &features, String name = "out.jpg");
+
     /**
      * @brief Usporeduje keypointe prema njihovom odzivu
      * @param first Prvi keypoint

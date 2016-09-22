@@ -3,6 +3,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include "SiftFeatureFinder.hpp"
+#include "SurfFeatureFinder.hpp"
 #include "OrbFeatureFinder.hpp"
 #include "FeatureMatcher.hpp"
 #include "Util.hpp"
@@ -20,7 +21,7 @@ std::vector<UMat> loadImages(String path) {
     for (int i = 0; i < files.size(); ++i) {
         Mat im = imread(files[i]);
         Mat im_scale;
-        resize(im, im_scale, Size(), 0.2, 0.2);
+        resize(im, im_scale, Size(), 0.5, 0.5);
         images.push_back(im_scale.getUMat(ACCESS_READ));
         //images.push_back(imread(files[i]).getUMat(ACCESS_READ));
     }
@@ -33,7 +34,8 @@ int main(int argc, char *argv[]) {
 
     std::vector<UMat> imgs = loadImages(path);
 
-    Ptr<SiftFeaturesFinder> finder = makePtr<SiftFeaturesFinder>(100);
+    //Ptr<SurfFeatureFinder> finder = makePtr<SurfFeatureFinder>(800);
+    Ptr<SiftFeaturesFinder> finder = makePtr<SiftFeaturesFinder>(200);
     //Ptr<OrbFeatureFinder> finder = makePtr<OrbFeatureFinder>();
     std::vector<ImageFeatures> features(imgs.size());
 
@@ -60,9 +62,12 @@ int main(int argc, char *argv[]) {
 
 
     rectangle(im1, rct1, 255);
-    rectangle(im2, rct2, 255);
-    displayKeypoints(im1(rois[0]), features[0]);
-    displayKeypoints(im2, features[1]);*/
+    rectangle(im2, rct2, 255);*/
+    displayKeypoints(imgs[0], features[0]);
+    displayKeypoints(imgs[1], features[1]);
+
+
+    //saveKeypoints(imgs[0], features[0], "orb_50_default.jpg");
 
 
     // Matching
@@ -72,17 +77,27 @@ int main(int argc, char *argv[]) {
     cout << "Matches: " << minfo.matches.size() << endl;
     cout << "H = " << minfo.H << endl;
 
+
+
+
     UMat image1 = imgs[1];
     UMat image2 = imgs[0];
 
+    Mat matches_image;
+    drawMatches(image2, features[0].keypoints, image1, features[1].keypoints, minfo.matches, matches_image,Scalar::all(-1));
+
+    namedWindow("Matches", WINDOW_NORMAL);
+    imshow("Matches", matches_image);
+    waitKey(0);
+
     Mat result;
-    warpPerspective(image1, result, minfo.H, Size(image1.cols + image2.cols, image1.rows), WARP_INVERSE_MAP);
+    warpPerspective(image2, result, minfo.H, Size(image1.cols + image2.cols, image1.rows+image2.rows));
 
     Mat half(result, cv::Rect(0, 0, image2.cols, image2.rows));
-    image2.copyTo(half);
+    image1.copyTo(half);
     namedWindow("Result", WINDOW_NORMAL);
     imshow("Result", result);
-    imwrite("stitch.jpg", result);
+    //imwrite("stitch_02_sift_sve.jpg", result);
 
     waitKey(0);
 
