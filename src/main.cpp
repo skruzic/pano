@@ -7,6 +7,7 @@
 #include "OrbFeatureFinder.hpp"
 #include "FeatureMatcher.hpp"
 #include "Util.hpp"
+#include <opencv2/calib3d.hpp>
 
 using namespace std;
 using namespace cv;
@@ -34,8 +35,8 @@ int main(int argc, char *argv[]) {
 
     std::vector<UMat> imgs = loadImages(path);
 
-    //Ptr<SurfFeatureFinder> finder = makePtr<SurfFeatureFinder>(800);
-    Ptr<SiftFeaturesFinder> finder = makePtr<SiftFeaturesFinder>(200);
+    Ptr<SurfFeatureFinder> finder = makePtr<SurfFeatureFinder>(800);
+    //Ptr<SiftFeaturesFinder> finder = makePtr<SiftFeaturesFinder>();
     //Ptr<OrbFeatureFinder> finder = makePtr<OrbFeatureFinder>();
     std::vector<ImageFeatures> features(imgs.size());
 
@@ -71,33 +72,62 @@ int main(int argc, char *argv[]) {
 
 
     // Matching
-    Ptr<FeatureMatcher> matcher = makePtr<FeatureMatcher>();
+    /*Ptr<FeatureMatcher> matcher = makePtr<FeatureMatcher>();
     MatchesInfo minfo;
     (*matcher)(features[0], features[1], minfo);
     cout << "Matches: " << minfo.matches.size() << endl;
-    cout << "H = " << minfo.H << endl;
+    cout << "H = " << minfo.H << endl;*/
+    FlannBasedMatcher matcher;
+    std::vector<DMatch> matches;
+    matcher.match(features[0].descriptors, features[1].descriptors, matches);
 
+    double max_dist = 0; double min_dist = 100;
 
+//-- Quick calculation of max and min distances between keypoints
+    for( int i = 0; i < features[0].descriptors.rows; i++ )
+    { double dist = matches[i].distance;
+        if( dist < min_dist ) min_dist = dist;
+        if( dist > max_dist ) max_dist = dist;
+    }
 
+    printf("-- Max dist : %f \n", max_dist );
+    printf("-- Min dist : %f \n", min_dist );
 
-    UMat image1 = imgs[1];
-    UMat image2 = imgs[0];
+    std::vector< DMatch > good_matches;
+
+    for( int i = 0; i < features[0].descriptors.rows; i++ )
+    { if( matches[i].distance < 3*min_dist )
+        { good_matches.push_back( matches[i]); }
+    }
+    std::vector< Point2f > obj;
+    std::vector< Point2f > scene;
+
+    for( int i = 0; i < good_matches.size(); i++ )
+    {
+        //-- Get the keypoints from the good matches
+        obj.push_back( features[0].keypoints[ good_matches[i].queryIdx ].pt );
+        scene.push_back( features[1].keypoints[ good_matches[i].trainIdx ].pt );
+    }
+
+    Mat H = findHomography(obj, scene, RANSAC);
 
     Mat matches_image;
-    drawMatches(image2, features[0].keypoints, image1, features[1].keypoints, minfo.matches, matches_image,Scalar::all(-1));
+    drawMatches(imgs[0], features[0].keypoints, imgs[1], features[1].keypoints, good_matches, matches_image,
+                Scalar::all(-1));
+    //imwrite("matches.jpg", matches_image);
 
     namedWindow("Matches", WINDOW_NORMAL);
     imshow("Matches", matches_image);
     waitKey(0);
 
     Mat result;
-    warpPerspective(image2, result, minfo.H, Size(image1.cols + image2.cols, image1.rows+image2.rows));
+    warpPerspective(imgs[1], result, H, Size(imgs[0].cols*1.3, imgs[0].rows*1.3), WARP_INVERSE_MAP);
 
-    Mat half(result, cv::Rect(0, 0, image2.cols, image2.rows));
-    image1.copyTo(half);
+    Mat half(result, cv::Rect(0, 0, imgs[1].cols, imgs[1].rows));
+    imgs[0].copyTo(half);
     namedWindow("Result", WINDOW_NORMAL);
     imshow("Result", result);
-    //imwrite("stitch_02_sift_sve.jpg", result);
+    //imwrite("surf1.jpg", result);
 
     waitKey(0);
 
